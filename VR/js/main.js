@@ -18,7 +18,8 @@ async function initializeApp() {
       loadScript("js/score-manager.js"),
       loadScript("js/burger-detector.js"),
       loadScript("js/integration-physx-burger.js"),
-      loadScript("js/make-burger.js")
+      loadScript("js/make-burger.js"),
+      loadScript("js/game-ui.js")
     ]);
     console.log('🎮 VR Burger Game initialized');
   } catch (error) {

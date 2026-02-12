@@ -7,6 +7,10 @@ AFRAME.registerComponent("grab-controller", {
     this._lastTriggerTime = 0;
     this._triggerDelay = 100;
 
+    // Tracking position pour calculer vélocité
+    this._lastControllerPos = new THREE.Vector3();
+    this._controllerVelocity = new THREE.Vector3();
+
     this.raycaster = this.el.components && this.el.components.raycaster;
     this.usingCursor = !!(this.el.components && this.el.components.cursor);
 
@@ -23,11 +27,24 @@ AFRAME.registerComponent("grab-controller", {
   },
 
   tick: function () {
+    // Toujours tracker la position du controller pour la vélocité
+    const controllerPos = new THREE.Vector3();
+    if (this.el.object3D) {
+      this.el.object3D.getWorldPosition(controllerPos);
+    }
+
+    // Calculer la vélocité du controller
+    if (this._lastControllerPos.length() > 0) {
+      this._controllerVelocity.subVectors(controllerPos, this._lastControllerPos);
+      // Ampifier pour que le lancer soit plus visible
+      this._controllerVelocity.multiplyScalar(2);
+    }
+    this._lastControllerPos.copy(controllerPos);
+
+    // Suivre l'objet saisi
     if (!this.grabbedEl || !this.el.object3D) return;
 
-    const controllerPos = new THREE.Vector3();
     const controllerQuat = new THREE.Quaternion();
-    this.el.object3D.getWorldPosition(controllerPos);
     this.el.object3D.getWorldQuaternion(controllerQuat);
 
     const newPos = new THREE.Vector3()
@@ -188,6 +205,10 @@ AFRAME.registerComponent("grab-controller", {
     }
 
     this.grabbedEl = el;
+    
+    // Réinitialiser la vélocité au moment du grab
+    this._controllerVelocity.set(0, 0, 0);
+    
     const grabbedId = el.id || "(no-id)";
     if (window.XRDebug && window.XRDebug.log) {
       window.XRDebug.log("GRAB:", grabbedId);
@@ -382,6 +403,7 @@ AFRAME.registerComponent("grab-controller", {
     if (this._savedPhysxBody && this.grabbedEl) {
       const savedBody = this._savedPhysxBody;
       const elToRestore = this.grabbedEl;
+      const velocityToApply = this._controllerVelocity.clone(); // Copier la vélocité du controller
 
       // Supprimer d'abord le physx-body kinematic
       try {
@@ -394,6 +416,23 @@ AFRAME.registerComponent("grab-controller", {
         if (elToRestore && elToRestore.object3D) {
           try {
             elToRestore.setAttribute("physx-body", savedBody);
+            
+            // Attendre un peu que PhysX initialise le corps
+            setTimeout(() => {
+              // Appliquer la vélocité à l'objet
+              if (elToRestore.components['physx-body'] && elToRestore.components['physx-body'].body) {
+                try {
+                  elToRestore.components['physx-body'].body.setLinearVelocity({
+                    x: velocityToApply.x,
+                    y: velocityToApply.y,
+                    z: velocityToApply.z
+                  });
+                  console.log('⚡ Vélocité appliquée:', velocityToApply);
+                } catch (e) {
+                  console.warn('Erreur lors de l\'application de la vélocité:', e);
+                }
+              }
+            }, 10);
           } catch (e) {
             console.warn("Error restoring physx-body:", e);
           }

@@ -95,6 +95,12 @@ AFRAME.registerComponent('burger-detector', {
   },
 
   validateBurger: function(detectedList) {
+    // Bloquer la validation si le jeu n'est pas actif
+    if (!window.gameActive) {
+      console.log('🚫 Validation bloquée: jeu non actif');
+      return;
+    }
+    
     // Trier la liste détectée pour comparaison
     const sortedDetected = detectedList.slice().sort();
     

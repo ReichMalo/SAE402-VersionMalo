@@ -135,8 +135,9 @@ AFRAME.registerComponent('score-manager', {
         }
         if (score < 0) score = 0;
 
-        // Mise à jour de la cible (l'animation rattrapera ce chiffre)
+        // Mise à jour de la cible ET de data.totalScore (les deux)
         this.targetScore += score;
+        this.data.totalScore += score;
 
         // Feedback local sur la TV
         recipeDisplay.showResult(score, isPerfect);
