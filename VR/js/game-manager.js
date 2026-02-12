@@ -29,9 +29,24 @@ window.listeRecipe1 = null;
 window.listeRecipe2 = null;
 
 function generateRandomRecipe() {
-    const testElements = ['bun_bottom', 'patty', 'cheese', 'tomato', 'onion', 'bun_top'];
-    const randomElement = testElements[Math.floor(Math.random() * testElements.length)];
-    return [{ type: randomElement }];
+    const fillings = ['patty', 'cheese', 'tomato', 'onion']; // Ingrédients intérieurs
+    
+    // Le burger commence par bun_bottom et finit par bun_top
+    const recipe = [
+        { type: 'bun_bottom' }
+    ];
+    
+    // Ajouter 1-4 ingrédients aléatoires (avec doublons possibles)
+    const fillingCount = Math.floor(Math.random() * 4) + 1; // 1-4
+    for (let i = 0; i < fillingCount; i++) {
+        const randomFilling = fillings[Math.floor(Math.random() * fillings.length)];
+        recipe.push({ type: randomFilling });
+    }
+    
+    // Finir avec bun_top
+    recipe.push({ type: 'bun_top' });
+    
+    return recipe;
 }
 
 AFRAME.registerComponent('recipe-display', {
