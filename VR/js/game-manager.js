@@ -24,28 +24,14 @@ const ORDER_SLOTS = [
     { x: 0.9,  y: 1.65, z: -1.5 }
 ];
 
+// Listes globales pour les recettes
+window.listeRecipe1 = null;
+window.listeRecipe2 = null;
+
 function generateRandomRecipe() {
-    const innerIngredients = [];
-    const steakCount = Math.floor(Math.random() * 2) + 1;
-    for (let i = 0; i < steakCount; i++) {
-        innerIngredients.push({ type: 'patty' });
-        if (Math.random() > 0.5) innerIngredients.push({ type: 'cheese' });
-    }
-    if (Math.random() > 0.6) innerIngredients.push({ type: 'tomato' });
-    if (Math.random() > 0.6) innerIngredients.push({ type: 'onion' });
-
-    while (innerIngredients.length < 2) {
-        const fillers = ['cheese', 'tomato', 'onion'];
-        const randomFiller = fillers[Math.floor(Math.random() * fillers.length)];
-        innerIngredients.push({ type: randomFiller });
-    }
-
-    const recipe = [];
-    recipe.push({ type: 'bun_bottom' });
-    innerIngredients.forEach(item => recipe.push(item));
-    recipe.push({ type: 'bun_top' });
-
-    return recipe;
+    const testElements = ['bun_bottom', 'patty', 'cheese', 'tomato', 'onion', 'bun_top'];
+    const randomElement = testElements[Math.floor(Math.random() * testElements.length)];
+    return [{ type: randomElement }];
 }
 
 AFRAME.registerComponent('recipe-display', {
@@ -54,6 +40,18 @@ AFRAME.registerComponent('recipe-display', {
         this.el.classList.add('active-order');
         this.contentGroup = null;
         this.resultText = null;
+        
+        // Assigner la recette aux listes globales selon l'ID
+        const parentId = this.el.getAttribute('id');
+        const recipeList = this.recipe.map(item => item.type);
+        
+        if (parentId === 'order-slot-0') {
+            window.listeRecipe1 = recipeList;
+        } else if (parentId === 'order-slot-1') {
+            window.listeRecipe2 = recipeList;
+        }
+        
+        console.log('📺 Recettes:', { recipe1: window.listeRecipe1, recipe2: window.listeRecipe2 });
 
         this._buildTVDesign();
         this._fillScreenContent();
@@ -96,6 +94,17 @@ AFRAME.registerComponent('recipe-display', {
         if (screen) screen.setAttribute('color', TV_CONFIG.screenGlow);
 
         this.recipe = generateRandomRecipe();
+        
+        // Mettre à jour les listes globales
+        const parentId = this.el.getAttribute('id');
+        const recipeList = this.recipe.map(item => item.type);
+        
+        if (parentId === 'order-slot-0') {
+            window.listeRecipe1 = recipeList;
+        } else if (parentId === 'order-slot-1') {
+            window.listeRecipe2 = recipeList;
+        }
+        
         this._fillScreenContent();
     },
 
@@ -176,35 +185,18 @@ AFRAME.registerComponent('recipe-display', {
     },
 
     _addDebugButton: function() {
-        const btn = document.createElement('a-box');
-        btn.setAttribute('color', '#2ecc71');
-        btn.setAttribute('depth', 0.05);
-        btn.setAttribute('width', 0.2);
-        btn.setAttribute('height', 0.1);
-        btn.setAttribute('position', `0 -${TV_CONFIG.height/2 + 0.05} 0`);
-        btn.classList.add('interactable');
-
-        const text = document.createElement('a-text');
-        text.setAttribute('value', 'VALIDER');
-        text.setAttribute('align', 'center');
-        text.setAttribute('scale', '0.2 0.2 0.2');
-        text.setAttribute('position', '0 0 0.03');
-        btn.appendChild(text);
-
-        this.el.appendChild(btn);
-
-        btn.addEventListener('click', () => {
-            if (window.ScoreManager) {
-                const perfectIngredients = this.recipe.map(r => r.type);
-                window.ScoreManager.validateOrder(perfectIngredients, this.el);
-            }
-        });
+        // Bouton de validation enlevé - validation automatique via burger-physx-detector
     }
 });
 
 AFRAME.registerComponent('order-manager', {
     schema: { interval: { type: 'number', default: 18000 }, maxOrders: { type: 'number', default: 2 } },
-    init: function() { this.timer = 0; this.spawnOneOrder(); },
+    init: function() { 
+        this.timer = 0; 
+        this.spawnOneOrder();
+        const self = this;
+        setTimeout(() => self.spawnOneOrder(), 150);
+    },
     tick: function(time, timeDelta) {
         this.timer += timeDelta;
         if (this.timer >= this.data.interval) { this.spawnOneOrder(); this.timer = 0; }
@@ -214,7 +206,7 @@ AFRAME.registerComponent('order-manager', {
         if (currentOrders >= this.data.maxOrders) return;
         for (let i = 0; i < ORDER_SLOTS.length; i++) {
             const slotId = `order-slot-${i}`;
-            if (!document.getElementById(slotId)) { this.createOrderAt(ORDER_SLOTS[i], slotId); break; }
+            if (!document.getElementById(slotId)) { this.createOrderAt(ORDER_SLOTS[i], slotId); return; }
         }
     },
     createOrderAt: function(position, id) {

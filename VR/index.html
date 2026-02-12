@@ -159,6 +159,7 @@
         infinite-supply=""
         data-is-original="true"
         data-physx-mass="0.3"
+        plate-target=""
         
         physx-body="type: static"
       ></a-entity>
@@ -170,7 +171,7 @@
         position="0.88 0.86 -1.15"
         scale="0.3 0.3 0.3"
         stackable=""
-        item-type="bun"
+        item-type="bun_top"
         infinite-supply=""
         data-is-original="true"
         data-physx-mass="0.2"
@@ -186,7 +187,7 @@
         position="1.19 0.86 -1.15"
         scale="0.3 0.3 0.3"
         stackable=""
-        item-type="bun"
+        item-type="bun_bottom"
         infinite-supply=""
         data-is-original="true"
         data-physx-mass="0.2"
@@ -383,6 +384,8 @@
       </a-entity>
 
       <a-entity score-manager=""></a-entity>
+      <a-entity burger-detector="stabilityTime: 1500"></a-entity>
+      <a-entity burger-validator="debugMode: false"></a-entity>
       <a-entity order-manager="interval: 18000; maxOrders: 2"></a-entity>
 
       <div class="a-loader-title" style="display: none">XR Burger Workshop</div>

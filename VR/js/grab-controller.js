@@ -490,6 +490,7 @@ AFRAME.registerComponent("grab-controller", {
     clone.dataset.isOriginal = "false";
 
     if (itemType === "plate") {
+      // Le composant plate-target créera la boite invisible automatiquement
       clone.setAttribute("plate-target", "");
     }
 

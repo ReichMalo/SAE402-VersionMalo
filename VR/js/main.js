@@ -15,10 +15,12 @@ async function initializeApp() {
       loadScript("js/infinite-supply.js"),
       loadScript("js/trash-bin.js"),
       loadScript("js/game-manager.js"),
-      loadScript("js/score-manager.js")
+      loadScript("js/score-manager.js"),
+      loadScript("js/burger-detector.js"),
+      loadScript("js/integration-physx-burger.js"),
+      loadScript("js/make-burger.js")
     ]);
-
-    console.log("Application fully initialized.");
+    console.log('🎮 VR Burger Game initialized');
   } catch (error) {
     console.error("Error loading components:", error);
   }
