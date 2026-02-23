@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Environment Scanner Test</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/physx@v0.3.x/dist/physx.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      xr-mode-ui="XRMode: xr"
+      physx="autoLoad: true; delay: 0; gravity: 0 -9.8 0; wasmUrl: https://cdn.jsdelivr.net/gh/c-frame/physx@v0.3.x/wasm/physx.release.wasm"
+    >
+      <!-- Lighting -->
+      <a-light type="ambient" color="#fff" intensity="0.6"></a-light>
+      <a-light
+        type="directional"
+        color="#fff"
+        intensity="0.8"
+        position="5 5 5"
+      ></a-light>
+
+      <!-- Scanner -->
+      <a-entity
+        id="environment-scan-system"
+        environment-scanner="enabled: true; meshContainer: #scan-container"
+      ></a-entity>
+      <a-entity id="scan-container"></a-entity>
+
+      <!-- Camera -->
+      <a-camera position="0 1.6 0"></a-camera>
+    </a-scene>
+
+    <script src="js/environment-scanner.js"></script>
+    <script>
+      console.log('✅ Environment Scanner Test Loaded - Click "Enter AR"');
+    </script>
+  </body>
+</html>

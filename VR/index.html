@@ -8,7 +8,11 @@
     <script src="https://unpkg.com/aframe-particle-system-component@1.0.x/dist/aframe-particle-system-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/physx@v0.3.x/dist/physx.min.js"></script>
 
+    <!-- Three.js utilities for mesh export -->
+    <script src="https://cdn.jsdelivr.net/npm/three@r140/examples/js/exporters/GLTFExporter.js"></script>
+
     <link rel="stylesheet" href="public/styles.css" />
+    <script src="js/debug-status.js"></script>
     <script src="js/main.js"></script>
   </head>
   <body>
@@ -388,6 +392,15 @@
       <a-entity burger-validator="debugMode: false"></a-entity>
       <a-entity order-manager="interval: 18000; maxOrders: 2"></a-entity>
       <a-entity game-ui="gameDuration: 60000"></a-entity>
+
+      <!-- Environment Scanning System -->
+      <a-entity
+        id="environment-scan-system"
+        environment-scanner="enabled: true; meshContainer: #scan-container"
+      ></a-entity>
+
+      <!-- Container for scanned environment mesh -->
+      <a-entity id="scan-container" position="0 0 0"></a-entity>
 
       <div class="a-loader-title" style="display: none">XR Burger Workshop</div>
     </a-scene>

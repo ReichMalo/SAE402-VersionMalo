@@ -11,6 +11,8 @@ function loadScript(src) {
 async function initializeApp() {
   try {
     await Promise.all([
+      loadScript("js/environment-scanner.js"),
+      loadScript("js/environment-loader.js"),
       loadScript("js/grab-controller.js"),
       loadScript("js/infinite-supply.js"),
       loadScript("js/trash-bin.js"),

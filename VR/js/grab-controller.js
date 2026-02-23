@@ -33,11 +33,11 @@ AFRAME.registerComponent("grab-controller", {
       this.el.object3D.getWorldPosition(controllerPos);
     }
 
-    // Calculer la vélocité du controller
+    // Calculer simplement la vélocité = différence de position
     if (this._lastControllerPos.length() > 0) {
       this._controllerVelocity.subVectors(controllerPos, this._lastControllerPos);
-      // Ampifier pour que le lancer soit plus visible
-      this._controllerVelocity.multiplyScalar(2);
+      // Amplifier beaucoup plus pour que ce soit visible (100x pour un lancer puissant)
+      this._controllerVelocity.multiplyScalar(100);
     }
     this._lastControllerPos.copy(controllerPos);
 
@@ -326,6 +326,10 @@ AFRAME.registerComponent("grab-controller", {
 
     this.lockInputs(50);
 
+    // Sauvegarder la vélocité brute du controller
+    const velocityToApply = this._controllerVelocity.clone();
+    console.log('💾 Vélocité à appliquer:', velocityToApply);
+
     const cameraEl = document.querySelector("#camera");
     const cameraPos = new THREE.Vector3();
     if (cameraEl && cameraEl.object3D) {
@@ -403,38 +407,49 @@ AFRAME.registerComponent("grab-controller", {
     if (this._savedPhysxBody && this.grabbedEl) {
       const savedBody = this._savedPhysxBody;
       const elToRestore = this.grabbedEl;
-      const velocityToApply = this._controllerVelocity.clone(); // Copier la vélocité du controller
+      const velX = velocityToApply.x;
+      const velY = velocityToApply.y;
+      const velZ = velocityToApply.z;
 
       // Supprimer d'abord le physx-body kinematic
       try {
         elToRestore.removeAttribute("physx-body");
       } catch (e) {}
 
-      // Recréer le corps physique après un court délai
-      // pour que PhysX puisse nettoyer l'ancien corps
+      // Recréer le corps physique avec la vélocité dans l'attribut
       setTimeout(() => {
         if (elToRestore && elToRestore.object3D) {
           try {
-            elToRestore.setAttribute("physx-body", savedBody);
+            // Essayer de passer la vélocité directement dans l'attribut
+            const bodyAttrWithVel = `${savedBody}; linearVelocity: ${velX} ${velY} ${velZ}`;
+            elToRestore.setAttribute("physx-body", bodyAttrWithVel);
+            console.log('🔧 Tentative 1 - Vélocité dans l\'attribut:', bodyAttrWithVel);
             
-            // Attendre un peu que PhysX initialise le corps
+            // Attendre et vérifier
             setTimeout(() => {
-              // Appliquer la vélocité à l'objet
-              if (elToRestore.components['physx-body'] && elToRestore.components['physx-body'].body) {
-                try {
-                  elToRestore.components['physx-body'].body.setLinearVelocity({
-                    x: velocityToApply.x,
-                    y: velocityToApply.y,
-                    z: velocityToApply.z
-                  });
-                  console.log('⚡ Vélocité appliquée:', velocityToApply);
-                } catch (e) {
-                  console.warn('Erreur lors de l\'application de la vélocité:', e);
+              try {
+                const physxBody = elToRestore.components['physx-body'];
+                if (physxBody && physxBody.body) {
+                  console.log('✅ PhysX body créé, vélocité devrait être:', { x: velX, y: velY, z: velZ });
+                } else {
+                  console.warn('⚠️ Aucun body trouvé après création');
                 }
+              } catch (e) {
+                console.error('❌ Erreur:', e);
               }
-            }, 10);
+            }, 200);
           } catch (e) {
-            console.warn("Error restoring physx-body:", e);
+            console.warn("Error setting physx-body:", e);
+            
+            // Fallback: créer sans vélocité dans l'attribut
+            setTimeout(() => {
+              try {
+                elToRestore.setAttribute("physx-body", savedBody);
+                console.log('🔧 Fallback - PhysX body créé sans vélocité initiale');
+              } catch (e2) {
+                console.error('Erreur fallback:', e2);
+              }
+            }, 50);
           }
         }
       }, 50);
