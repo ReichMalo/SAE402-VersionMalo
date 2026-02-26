@@ -307,6 +307,8 @@ body {
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  list-style: none;
+  padding-left: 0;
 }
 
 .step {

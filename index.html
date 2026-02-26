@@ -1,231 +1,223 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="VR Burger Workshop - Le jeu culinaire immersif en réalité virtuelle. Construisez des burgers parfaits en VR avec WebXR et Meta Quest 3."
+      content="VR Burger Workshop - The immersive virtual reality cooking game. Build perfect burgers in VR with WebXR and Meta Quest 3."
     />
     <meta
       name="keywords"
-      content="VR, burger, jeu, réalité virtuelle, WebXR, Meta Quest"
+      content="VR, burger, game, virtual reality, WebXR, Meta Quest"
     />
-    <title>VR Burger Workshop - Le Jeu Culinaire en Réalité Virtuelle</title>
+    <title>VR Burger Workshop - The Virtual Reality Cooking Game</title>
     <link rel="stylesheet" href="presentation.css" />
   </head>
   <body>
-    <!-- Header avec Navigation -->
+    <!-- Header with Navigation -->
     <header class="navbar" role="banner">
-      <nav class="navbar-container" aria-label="Navigation principale">
+      <nav class="navbar-container" aria-label="Main navigation">
         <h1 class="logo">🍔 VR Burger</h1>
       </nav>
     </header>
 
     <!-- Hero Section -->
     <section id="home" class="hero">
-      <div class="hero-content">
+      <article class="hero-content">
         <h1>VR Burger Workshop</h1>
-        <p class="tagline">
-          Maîtrisez l'Art de la Cuisine en Réalité Virtuelle
-        </p>
-        <div class="cta-buttons">
+        <p class="tagline">Master the Art of Cooking in Virtual Reality</p>
+        <nav class="cta-buttons" aria-label="Primary actions">
           <button
             class="btn btn-primary"
             onclick="window.location.href = 'VR/index.html'"
           >
-            🥽 Entrer en VR
+            🥽 Enter VR
           </button>
           <button
             class="btn btn-secondary"
             onclick="scrollToSection('features')"
           >
-            En Savoir Plus
+            Learn More
           </button>
-        </div>
-        <div class="hero-image">
-          <div class="burger-icon">🍔</div>
-        </div>
-      </div>
+        </nav>
+        <figure class="hero-image" aria-hidden="true">
+          <span class="burger-icon">🍔</span>
+        </figure>
+      </article>
     </section>
 
     <!-- Features Section -->
     <section id="features" class="features">
-      <h2>Fonctionnalités</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <h3>Immersion Totale</h3>
+      <h2>Features</h2>
+      <section class="features-grid" aria-label="Feature list">
+        <article class="feature-card">
+          <h3>Total Immersion</h3>
           <p>
-            Plongez dans un environnement 3D photoréaliste avec support WebXR
-            complet
+            Dive into a photorealistic 3D environment with full WebXR support
           </p>
-        </div>
-        <div class="feature-card">
-          <h3>Contrôles Intuitifs</h3>
+        </article>
+        <article class="feature-card">
+          <h3>Intuitive Controls</h3>
           <p>
-            Utilisez les manettes Oculus Touch pour une expérience immersive et
-            naturelle
+            Use Oculus Touch controllers for a natural and immersive experience
           </p>
-        </div>
-        <div class="feature-card">
-          <h3>Ingrédients Variés</h3>
+        </article>
+        <article class="feature-card">
+          <h3>Varied Ingredients</h3>
           <p>
-            Pains, steaks, fromage, tomates, oignons et condiments pour créer
-            vos burgers
+            Buns, patties, cheese, tomatoes, onions, and condiments to craft
+            your burgers
           </p>
-        </div>
-        <div class="feature-card">
+        </article>
+        <article class="feature-card">
           <h3>Gamification</h3>
-          <p>Minuteur, scoring, détection automatique de burgers parfaits</p>
-        </div>
-        <div class="feature-card">
-          <h3>Scan d'Environnement</h3>
+          <p>Timer, scoring, and automatic perfect-burger detection</p>
+        </article>
+        <article class="feature-card">
+          <h3>Environment Scanning</h3>
           <p>
-            Détection automatique de votre environnement pour une expérience
-            adaptée
+            Automatic detection of your surroundings for an adaptive experience
           </p>
-        </div>
-        <div class="feature-card">
-          <h3>Système de Score</h3>
-          <p>
-            Suivi en temps réel de vos performances avec un tableau de bord
-            détaillé
-          </p>
-        </div>
-      </div>
+        </article>
+        <article class="feature-card">
+          <h3>Scoring System</h3>
+          <p>Real-time performance tracking with a detailed dashboard</p>
+        </article>
+      </section>
     </section>
 
     <!-- Gameplay Section -->
     <section id="gameplay" class="gameplay">
-      <h2>Comment Ça Marche</h2>
-      <div class="gameplay-steps">
-        <div class="step">
-          <div class="step-number">1</div>
-          <h3>Préparez votre Espace</h3>
-          <p>Assurez-vous d'avoir un espace de jeu dégagé (environ 2m x 2m)</p>
-        </div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <h3>Entrez dans le Monde VR</h3>
-          <p>Mettez votre casque VR et connectez-vous au jeu</p>
-        </div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <h3>Construisez vos Burgers</h3>
-          <p>Récupérez les ingrédients et assemblez-les dans le bon ordre</p>
-        </div>
-        <div class="step">
-          <div class="step-number">4</div>
-          <h3>Complétez les Commandes</h3>
-          <p>Servez les burgers avant que le minuteur n'arrive à zéro</p>
-        </div>
-        <div class="step">
-          <div class="step-number">5</div>
-          <h3>Gagnez des Points</h3>
-          <p>Obtenez des bonus pour la précision et la vitesse</p>
-        </div>
-        <div class="step">
-          <div class="step-number">6</div>
-          <h3>Devenez un Maître Chef</h3>
-          <p>Battez vos records et défiez vos amis</p>
-        </div>
-      </div>
+      <h2>How It Works</h2>
+      <ol class="gameplay-steps">
+        <li class="step">
+          <span class="step-number">1</span>
+          <h3>Prepare Your Space</h3>
+          <p>Make sure you have a clear play area (about 2m x 2m)</p>
+        </li>
+        <li class="step">
+          <span class="step-number">2</span>
+          <h3>Enter the VR World</h3>
+          <p>Put on your VR headset and connect to the game</p>
+        </li>
+        <li class="step">
+          <span class="step-number">3</span>
+          <h3>Build Your Burgers</h3>
+          <p>Grab ingredients and assemble them in the right order</p>
+        </li>
+        <li class="step">
+          <span class="step-number">4</span>
+          <h3>Complete Orders</h3>
+          <p>Serve burgers before the timer reaches zero</p>
+        </li>
+        <li class="step">
+          <span class="step-number">5</span>
+          <h3>Earn Points</h3>
+          <p>Get bonuses for speed and accuracy</p>
+        </li>
+        <li class="step">
+          <span class="step-number">6</span>
+          <h3>Become a Master Chef</h3>
+          <p>Beat your records and challenge your friends</p>
+        </li>
+      </ol>
     </section>
 
     <!-- Technology Section -->
     <section id="tech" class="technology">
-      <h2>Technologie</h2>
-      <div class="tech-details">
-        <div class="tech-item">
+      <h2>Technology</h2>
+      <section class="tech-details" aria-label="Technology stack">
+        <article class="tech-item">
           <h3>🖥️ A-Frame</h3>
-          <p>Framework WebXR pour une création 3D accessible et performante</p>
-        </div>
-        <div class="tech-item">
+          <p>WebXR framework for accessible and high-performance 3D creation</p>
+        </article>
+        <article class="tech-item">
           <h3>🎨 Three.js</h3>
-          <p>Moteur graphique 3D pour des visuels époustouflants</p>
-        </div>
-        <div class="tech-item">
+          <p>3D graphics engine for stunning visuals</p>
+        </article>
+        <article class="tech-item">
           <h3>⚙️ PhysX</h3>
-          <p>Moteur physique réaliste pour les interactions avec les objets</p>
-        </div>
-        <div class="tech-item">
+          <p>Realistic physics engine for object interactions</p>
+        </article>
+        <article class="tech-item">
           <h3>🎯 WebXR API</h3>
-          <p>Support natif des casques VR sur le navigateur</p>
-        </div>
-        <div class="tech-item">
+          <p>Native VR headset support in the browser</p>
+        </article>
+        <article class="tech-item">
           <h3>🎮 Meta Quest 3</h3>
-          <p>Compatible avec les casques Oculus et Meta</p>
-        </div>
-        <div class="tech-item">
+          <p>Compatible with Oculus and Meta headsets</p>
+        </article>
+        <article class="tech-item">
           <h3>🔍 Hit-Test Detection</h3>
-          <p>Détection intelligente de l'environnement pour physique adaptée</p>
-        </div>
-      </div>
+          <p>Smart environment detection for adaptive physics</p>
+        </article>
+      </section>
     </section>
 
     <!-- Stats Section -->
-    <section class="stats">
-      <div class="stat-card">
+    <section class="stats" aria-label="Game statistics">
+      <article class="stat-card">
         <h3>6</h3>
-        <p>Ingrédients</p>
-      </div>
-      <div class="stat-card">
+        <p>Ingredients</p>
+      </article>
+      <article class="stat-card">
         <h3>∞</h3>
-        <p>Combinaisons Possibles</p>
-      </div>
-      <div class="stat-card">
+        <p>Possible Combinations</p>
+      </article>
+      <article class="stat-card">
         <h3>60s</h3>
-        <p>Partie Standard</p>
-      </div>
-      <div class="stat-card">
+        <p>Standard Match</p>
+      </article>
+      <article class="stat-card">
         <h3>100%</h3>
-        <p>Immersif</p>
-      </div>
+        <p>Immersive</p>
+      </article>
     </section>
 
     <!-- CTA Section -->
     <section class="cta-section">
-      <h2>Prêt à Devenir un Chef VR?</h2>
-      <p>Laissez-vous transporter dans un monde culinaire virtuel unique</p>
+      <h2>Ready to Become a VR Chef?</h2>
+      <p>Step into a unique virtual culinary world</p>
       <button
         class="btn btn-large"
         onclick="window.location.href = 'VR/index.html'"
       >
-        🥽 Lancer le Jeu
+        🥽 Launch the Game
       </button>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h4>À Propos</h4>
+      <section class="footer-content">
+        <article class="footer-section">
+          <h4>About</h4>
           <p>
-            VR Burger Workshop est une expérience immersive créée pour explorer
-            les possibilités de la réalité virtuelle dans le gaming culinaire.
+            VR Burger Workshop is an immersive experience created to explore
+            virtual reality possibilities in culinary gaming.
           </p>
-        </div>
-        <div class="footer-section">
+        </article>
+        <nav class="footer-section" aria-label="Footer navigation">
           <h4>Navigation</h4>
           <ul>
-            <li><a href="#home">Accueil</a></li>
-            <li><a href="#features">Fonctionnalités</a></li>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#features">Features</a></li>
             <li><a href="#gameplay">Gameplay</a></li>
-            <li><a href="#tech">Technologie</a></li>
+            <li><a href="#tech">Technology</a></li>
           </ul>
-        </div>
-        <div class="footer-section">
-          <h4>Ressources</h4>
+        </nav>
+        <nav class="footer-section" aria-label="Resources">
+          <h4>Resources</h4>
           <ul>
-            <li><a href="VR/index.html">Jeu VR</a></li>
+            <li><a href="VR/index.html">VR Game</a></li>
             <li><a href="#contact">Support</a></li>
             <li><a href="#contact">Feedback</a></li>
           </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 VR Burger Workshop. Tous droits réservés. 🍔</p>
-      </div>
+        </nav>
+      </section>
+      <section class="footer-bottom">
+        <p>&copy; 2024 VR Burger Workshop. All rights reserved. 🍔</p>
+      </section>
     </footer>
 
     <script src="presentation.js"></script>
