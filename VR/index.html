@@ -12,16 +12,39 @@
     <script src="https://cdn.jsdelivr.net/npm/three@r140/examples/js/exporters/GLTFExporter.js"></script>
 
     <link rel="stylesheet" href="public/styles.css" />
+    <style>
+      #log {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        color: #0f0;
+        font-size: 11px;
+        z-index: 100;
+        max-width: 450px;
+        max-height: 350px;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 8px;
+        border: 1px solid #0f0;
+        font-family: monospace;
+        font-weight: bold;
+      }
+      #log .line {
+        margin: 1px 0;
+      }
+    </style>
     <script src="js/debug-status.js"></script>
     <script src="js/main.js"></script>
   </head>
   <body>
+    <div id="log">INITIALIZING...</div>
     <a-scene
       xr-mode-ui="XRMode: xr"
       inspector=""
       keyboard-shortcuts=""
       screenshot=""
       device-orientation-permission-ui=""
+      webxr="referenceSpaceType: local-floor; optionalFeatures: hit-test"
       physx="autoLoad: true; delay: 0; gravity: 0 -9.8 0; wasmUrl: https://cdn.jsdelivr.net/gh/c-frame/physx@v0.3.x/wasm/physx.release.wasm"
     >
         <a-asset-item
@@ -387,6 +410,8 @@
         </a-entity>
       </a-entity>
 
+      <a-entity id="meshes"></a-entity>
+
       <a-entity score-manager=""></a-entity>
       <a-entity burger-detector="stabilityTime: 1500"></a-entity>
       <a-entity burger-validator="debugMode: false"></a-entity>
@@ -404,5 +429,370 @@
 
       <div class="a-loader-title" style="display: none">XR Burger Workshop</div>
     </a-scene>
+
+    <script>
+      // Ultra-simple mesh detector
+      class MeshDetector {
+        constructor() {
+          this.scene = document.querySelector("a-scene");
+          this.log("Detector created");
+          this.init();
+        }
+
+        init() {
+          this.scene.addEventListener("enter-vr", () => this.onEnterVR());
+          this.scene.addEventListener("exit-vr", () => this.onExitVR());
+          this.log("Listeners attached");
+        }
+
+        async onEnterVR() {
+          this.log("VR ENTERED");
+          // Scanner disabled - just for testing environment detection if needed
+        }
+
+        onExitVR() {
+          this.log("Exit VR");
+          document.getElementById("meshes").innerHTML = "";
+        }
+
+        async onEnterVR() {
+          this.log("VR ENTERED");
+          await new Promise((r) => setTimeout(r, 100));
+
+          const renderer = this.scene.renderer;
+          if (!renderer || !renderer.xr) {
+            this.log("✗ No renderer.xr");
+            return;
+          }
+
+          const session = renderer.xr.getSession?.();
+          if (!session) {
+            this.log("✗ No session");
+            return;
+          }
+
+          // Get spaces
+          let viewerSpace, refSpace;
+          try {
+            viewerSpace = await session.requestReferenceSpace("viewer");
+          } catch (e) {
+            this.log("✗ Viewer space: " + e.message);
+            return;
+          }
+
+          try {
+            refSpace = await session.requestReferenceSpace("local-floor");
+          } catch {
+            refSpace = viewerSpace;
+          }
+
+          // Get hit test
+          let hitTestSource;
+          try {
+            hitTestSource = await session.requestHitTestSource({
+              space: viewerSpace,
+            });
+            this.log("✓ Scanning started");
+          } catch (e) {
+            this.log("✗ Hit test: " + e.message);
+            return;
+          }
+
+          // Start loop
+          let count = 0;
+          const detected = new Set();
+          const gridPoints = new Map();
+          const GRID_SIZE = 0.25;
+          const connections = new Set();
+
+          const snapToGrid = (pos) => {
+            return Math.round(pos / GRID_SIZE) * GRID_SIZE;
+          };
+
+          const drawLine = (p1, p2) => {
+            const lineKey = [Math.min(p1, p2), Math.max(p1, p2)].join("|");
+            if (connections.has(lineKey)) return;
+            connections.add(lineKey);
+
+            const [x1, y1, z1] = p1.split(",").map(Number);
+            const [x2, y2, z2] = p2.split(",").map(Number);
+
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const dz = z2 - z1;
+            const length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+            if (length < 0.001) return;
+
+            const line = document.createElement("a-entity");
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            const midZ = (z1 + z2) / 2;
+
+            line.setAttribute("position", `${midX} ${midY} ${midZ}`);
+
+            const cyl = document.createElement("a-cylinder");
+            cyl.setAttribute("radius", "0.01");
+            cyl.setAttribute("height", length);
+            cyl.setAttribute("color", "#00FF00");
+            cyl.setAttribute("opacity", "0")
+
+            const rotAxis = new THREE.Vector3(dy, -dx, 0).normalize();
+            const angle = Math.acos(dz / length) * (180 / Math.PI);
+            cyl.setAttribute(
+              "rotation",
+              `${angle * rotAxis.x} ${angle * rotAxis.y} 0`,
+            );
+
+            line.appendChild(cyl);
+            document.getElementById("meshes").appendChild(line);
+          };
+
+          const drawFace = (p1, p2, p3, p4, plane) => {
+            const faceKey = [p1, p2, p3, p4].sort().join(":");
+            if (connections.has(faceKey)) return;
+            connections.add(faceKey);
+
+            const [x1, y1, z1] = p1.split(",").map(Number);
+            const [x2, y2, z2] = p2.split(",").map(Number);
+            const [x3, y3, z3] = p3.split(",").map(Number);
+            const [x4, y4, z4] = p4.split(",").map(Number);
+
+            const centerX = (x1 + x2 + x3 + x4) / 4;
+            const centerY = (y1 + y2 + y3 + y4) / 4;
+            const centerZ = (z1 + z2 + z3 + z4) / 4;
+
+            const face = document.createElement("a-entity");
+            face.setAttribute("position", `${centerX} ${centerY} ${centerZ}`);
+            face.setAttribute("physx-body", "type: static");
+
+            const planeEl = document.createElement("a-plane");
+            planeEl.setAttribute("width", GRID_SIZE);
+            planeEl.setAttribute("height", GRID_SIZE);
+            planeEl.setAttribute("color", "#00FF00");
+            planeEl.setAttribute("opacity", "0");
+            planeEl.setAttribute("side", "double");
+
+            if (plane === "XZ") {
+              planeEl.setAttribute("rotation", "90 0 0");
+            } else if (plane === "YZ") {
+              planeEl.setAttribute("rotation", "0 90 0");
+            }
+
+            face.appendChild(planeEl);
+            document.getElementById("meshes").appendChild(face);
+          };
+
+          const tryCreateFace = (p1, p2, p3, p4, plane) => {
+            if (
+              !gridPoints.has(p1) ||
+              !gridPoints.has(p2) ||
+              !gridPoints.has(p3) ||
+              !gridPoints.has(p4)
+            )
+              return;
+
+            const edge1 = [Math.min(p1, p2), Math.max(p1, p2)].join("|");
+            const edge2 = [Math.min(p2, p4), Math.max(p2, p4)].join("|");
+            const edge3 = [Math.min(p4, p3), Math.max(p4, p3)].join("|");
+            const edge4 = [Math.min(p3, p1), Math.max(p3, p1)].join("|");
+
+            if (
+              connections.has(edge1) &&
+              connections.has(edge2) &&
+              connections.has(edge3) &&
+              connections.has(edge4)
+            ) {
+              drawFace(p1, p2, p3, p4, plane);
+            }
+          };
+
+          const loop = (time, frame) => {
+            count++;
+
+            if (!hitTestSource) {
+              session.requestAnimationFrame(loop);
+              return;
+            }
+
+            const results = frame.getHitTestResults(hitTestSource);
+
+            if (results.length > 0) {
+              const pose = results[0].getPose(refSpace);
+              if (pose) {
+                const x = pose.transform.position.x;
+                const y = pose.transform.position.y;
+                const z = pose.transform.position.z;
+
+                const gridX = snapToGrid(x);
+                const gridY = snapToGrid(y);
+                const gridZ = snapToGrid(z);
+                const key = `${gridX},${gridY},${gridZ}`;
+
+                if (!detected.has(key)) {
+                  detected.add(key);
+                  gridPoints.set(key, { x: gridX, y: gridY, z: gridZ });
+
+                  if (detected.size % 20 === 0) {
+                    this.log(`✓ ${detected.size} points`);
+                  }
+
+                  this.addBox(gridX, gridY, gridZ);
+
+                  const adjacentKeys = [
+                    `${gridX + GRID_SIZE},${gridY},${gridZ}`,
+                    `${gridX - GRID_SIZE},${gridY},${gridZ}`,
+                    `${gridX},${gridY + GRID_SIZE},${gridZ}`,
+                    `${gridX},${gridY - GRID_SIZE},${gridZ}`,
+                    `${gridX},${gridY},${gridZ + GRID_SIZE}`,
+                    `${gridX},${gridY},${gridZ - GRID_SIZE}`,
+                  ];
+
+                  adjacentKeys.forEach((adjKey) => {
+                    if (gridPoints.has(adjKey)) {
+                      drawLine(key, adjKey);
+                    }
+                  });
+
+                  const g = GRID_SIZE;
+                  tryCreateFace(
+                    key,
+                    `${gridX + g},${gridY},${gridZ}`,
+                    `${gridX + g},${gridY + g},${gridZ}`,
+                    `${gridX},${gridY + g},${gridZ}`,
+                    "XY",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX - g},${gridY},${gridZ}`,
+                    `${gridX - g},${gridY + g},${gridZ}`,
+                    `${gridX},${gridY + g},${gridZ}`,
+                    "XY",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX + g},${gridY},${gridZ}`,
+                    `${gridX + g},${gridY - g},${gridZ}`,
+                    `${gridX},${gridY - g},${gridZ}`,
+                    "XY",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX - g},${gridY},${gridZ}`,
+                    `${gridX - g},${gridY - g},${gridZ}`,
+                    `${gridX},${gridY - g},${gridZ}`,
+                    "XY",
+                  );
+
+                  tryCreateFace(
+                    key,
+                    `${gridX + g},${gridY},${gridZ}`,
+                    `${gridX + g},${gridY},${gridZ + g}`,
+                    `${gridX},${gridY},${gridZ + g}`,
+                    "XZ",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX - g},${gridY},${gridZ}`,
+                    `${gridX - g},${gridY},${gridZ + g}`,
+                    `${gridX},${gridY},${gridZ + g}`,
+                    "XZ",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX + g},${gridY},${gridZ}`,
+                    `${gridX + g},${gridY},${gridZ - g}`,
+                    `${gridX},${gridY},${gridZ - g}`,
+                    "XZ",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX - g},${gridY},${gridZ}`,
+                    `${gridX - g},${gridY},${gridZ - g}`,
+                    `${gridX},${gridY},${gridZ - g}`,
+                    "XZ",
+                  );
+
+                  tryCreateFace(
+                    key,
+                    `${gridX},${gridY + g},${gridZ}`,
+                    `${gridX},${gridY + g},${gridZ + g}`,
+                    `${gridX},${gridY},${gridZ + g}`,
+                    "YZ",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX},${gridY - g},${gridZ}`,
+                    `${gridX},${gridY - g},${gridZ + g}`,
+                    `${gridX},${gridY},${gridZ + g}`,
+                    "YZ",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX},${gridY + g},${gridZ}`,
+                    `${gridX},${gridY + g},${gridZ - g}`,
+                    `${gridX},${gridY},${gridZ - g}`,
+                    "YZ",
+                  );
+                  tryCreateFace(
+                    key,
+                    `${gridX},${gridY - g},${gridZ}`,
+                    `${gridX},${gridY - g},${gridZ - g}`,
+                    `${gridX},${gridY},${gridZ - g}`,
+                    "YZ",
+                  );
+                }
+              }
+            }
+
+            session.requestAnimationFrame(loop);
+          };
+
+          session.requestAnimationFrame(loop);
+        }
+
+        addBox(x, y, z) {
+          const entity = document.createElement("a-entity");
+          entity.setAttribute(
+            "position",
+            `${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}`,
+          );
+          entity.setAttribute("physx-body", "type: static");
+
+          const box = document.createElement("a-box");
+          box.setAttribute("width", "0.05");
+          box.setAttribute("height", "0.05");
+          box.setAttribute("depth", "0.05");
+          box.setAttribute("color", "#00FF00");
+          box.setAttribute("emissive", "#00FF00");
+          box.setAttribute("opacity", "0");
+
+          entity.appendChild(box);
+          document.getElementById("meshes").appendChild(entity);
+        }
+
+        onExitVR() {
+          this.log("Exit VR");
+          document.getElementById("meshes").innerHTML = "";
+        }
+
+        log(m) {
+          console.log(m);
+          const div = document.getElementById("log");
+          const line = document.createElement("div");
+          line.className = "line";
+          line.textContent = m;
+          line.style.color = m.includes("✓")
+            ? "#0f0"
+            : m.includes("✗")
+              ? "#f00"
+              : "#0ff";
+          div.insertBefore(line, div.firstChild);
+          while (div.children.length > 20) div.removeChild(div.lastChild);
+        }
+      }
+
+      new MeshDetector();
+    </script>
   </body>
 </html>
