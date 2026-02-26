@@ -65,8 +65,6 @@ AFRAME.registerComponent('recipe-display', {
         } else if (parentId === 'order-slot-1') {
             window.listeRecipe2 = recipeList;
         }
-        
-        console.log('📺 Recettes:', { recipe1: window.listeRecipe1, recipe2: window.listeRecipe2 });
 
         this._buildTVDesign();
         this._fillScreenContent();

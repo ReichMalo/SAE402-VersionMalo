@@ -212,8 +212,6 @@ AFRAME.registerComponent("grab-controller", {
     const grabbedId = el.id || "(no-id)";
     if (window.XRDebug && window.XRDebug.log) {
       window.XRDebug.log("GRAB:", grabbedId);
-    } else {
-      console.log("GRAB:", grabbedId);
     }
 
     el.dataset.isGrabbed = "true";
@@ -328,7 +326,6 @@ AFRAME.registerComponent("grab-controller", {
 
     // Sauvegarder la vélocité brute du controller
     const velocityToApply = this._controllerVelocity.clone();
-    console.log('💾 Vélocité à appliquer:', velocityToApply);
 
     const cameraEl = document.querySelector("#camera");
     const cameraPos = new THREE.Vector3();
@@ -423,31 +420,24 @@ AFRAME.registerComponent("grab-controller", {
             // Essayer de passer la vélocité directement dans l'attribut
             const bodyAttrWithVel = `${savedBody}; linearVelocity: ${velX} ${velY} ${velZ}`;
             elToRestore.setAttribute("physx-body", bodyAttrWithVel);
-            console.log('🔧 Tentative 1 - Vélocité dans l\'attribut:', bodyAttrWithVel);
             
             // Attendre et vérifier
             setTimeout(() => {
               try {
                 const physxBody = elToRestore.components['physx-body'];
                 if (physxBody && physxBody.body) {
-                  console.log('✅ PhysX body créé, vélocité devrait être:', { x: velX, y: velY, z: velZ });
                 } else {
-                  console.warn('⚠️ Aucun body trouvé après création');
                 }
               } catch (e) {
-                console.error('❌ Erreur:', e);
               }
             }, 200);
           } catch (e) {
-            console.warn("Error setting physx-body:", e);
             
             // Fallback: créer sans vélocité dans l'attribut
             setTimeout(() => {
               try {
                 elToRestore.setAttribute("physx-body", savedBody);
-                console.log('🔧 Fallback - PhysX body créé sans vélocité initiale');
               } catch (e2) {
-                console.error('Erreur fallback:', e2);
               }
             }, 50);
           }

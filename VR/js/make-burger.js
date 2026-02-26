@@ -107,13 +107,9 @@ AFRAME.registerComponent('plate-target', {
     if (newItemsJson !== this._lastItemsJson) {
       this._lastItemsJson = newItemsJson;
       this._items = this._tempList.slice();
-      
-      console.log('🍽️ Assiette:', this._items);
-      
+
       if (this._items.length === 0) {
-        window.XRDebug?.set?.('');
       } else {
-        window.XRDebug?.set?.('📦 Assiette: ' + this._items.join(', '));
       }
     }
   },

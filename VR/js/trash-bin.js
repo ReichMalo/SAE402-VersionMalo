@@ -7,7 +7,6 @@ AFRAME.registerComponent('trash-bin', {
     init: function() {
         this.trashPosition = new THREE.Vector3();
         this._createDetectionZone();
-        console.log('🗑️ Trash bin initialized with radius:', this.data.radius);
     },
 
     tick: function() {
@@ -38,7 +37,6 @@ AFRAME.registerComponent('trash-bin', {
                 const distance = this.trashPosition.distanceTo(itemPos);
 
                 if (distance < this.data.radius) {
-                    console.log('🎯 Clone of unlimited item in trash range:', itemType, 'Distance:', distance.toFixed(2));
                     this._destroyItem(el);
                 }
             }
@@ -64,7 +62,6 @@ AFRAME.registerComponent('trash-bin', {
 
     _destroyItem: function(el) {
         const itemType = el.getAttribute('item-type');
-        console.log('🗑️ Destroying item:', itemType);
 
         if (el.object3D) {
             el.setAttribute('animation', {
@@ -77,7 +74,6 @@ AFRAME.registerComponent('trash-bin', {
 
         setTimeout(() => {
             if (el.parentNode) {
-                console.log('💥 Item destroyed:', itemType);
                 el.parentNode.removeChild(el);
             }
         }, this.data.destroyDelay);

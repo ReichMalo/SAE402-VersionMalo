@@ -9,7 +9,6 @@ AFRAME.registerComponent('score-manager', {
     },
 
     init: function() {
-        console.log('🏆 Score Manager prêt avec Panneau Géant');
         window.ScoreManager = this;
 
         // Variables pour l'animation

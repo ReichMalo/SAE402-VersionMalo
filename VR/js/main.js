@@ -11,8 +11,6 @@ function loadScript(src) {
 async function initializeApp() {
   try {
     await Promise.all([
-      loadScript("js/environment-scanner.js"),
-      loadScript("js/environment-loader.js"),
       loadScript("js/grab-controller.js"),
       loadScript("js/infinite-supply.js"),
       loadScript("js/trash-bin.js"),
@@ -23,9 +21,7 @@ async function initializeApp() {
       loadScript("js/make-burger.js"),
       loadScript("js/game-ui.js")
     ]);
-    console.log('🎮 VR Burger Game initialized');
   } catch (error) {
-    console.error("Error loading components:", error);
   }
 }
 

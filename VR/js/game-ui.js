@@ -17,8 +17,6 @@ AFRAME.registerComponent('game-ui', {
         // Variables globales pour accès par d'autres composants
         window.gameActive = false;
         
-        console.log('🎮 Game UI initialized');
-        
         // Créer le menu initial
         this._createStartMenu();
     },
@@ -74,20 +72,16 @@ AFRAME.registerComponent('game-ui', {
         
         // Events au grab
         playButton.addEventListener('grab-start', () => {
-            console.log('🎮 Play button grabbed!');
             playButton.setAttribute('material', 'color: #1abc9c; emissive: #1abc9c; emissiveIntensity: 0.8');
         });
         
         playButton.addEventListener('grab-end', () => {
-            console.log('🎮 Play button released - Starting game!');
             playButton.setAttribute('material', 'color: #27ae60; emissive: #27ae60; emissiveIntensity: 0.5');
             this._startGame();
         });
     },
 
     _startGame: function() {
-        console.log('🎮 Game started!');
-        
         this.gameActive = true;
         window.gameActive = true;  // Signaler globalement que le jeu est actif
         this.gameStartTime = Date.now();
@@ -163,14 +157,11 @@ AFRAME.registerComponent('game-ui', {
     },
 
     _endGame: function() {
-        console.log('⏱️ Game ended!');
-        
         this.gameActive = false;
         window.gameActive = false;  // Signaler globalement que le jeu n'est plus actif
         
         // Sauvegarder le score final AVANT de le remettre à 0 (utiliser targetScore qui est à jour)
         this.finalScore = window.ScoreManager ? (window.ScoreManager.targetScore || window.ScoreManager.data.totalScore || 0) : 0;
-        console.log('💾 Score sauvegardé:', this.finalScore);
         
         // Masquer le timer
         if (this.timerContainer) {
@@ -244,12 +235,10 @@ AFRAME.registerComponent('game-ui', {
         
         // Events au grab
         replayButton.addEventListener('grab-start', () => {
-            console.log('🎮 Replay button grabbed!');
             replayButton.setAttribute('material', 'color: #2ecc71; emissive: #2ecc71; emissiveIntensity: 0.8');
         });
         
         replayButton.addEventListener('grab-end', () => {
-            console.log('🎮 Replay button released - Restarting game!');
             
             // Reset le score AVANT de recommencer
             if (window.ScoreManager) {

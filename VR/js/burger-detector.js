@@ -18,8 +18,6 @@ AFRAME.registerComponent('burger-detector', {
     this.plates = []; // Array of {el, component, lastIngredients, stableStartTime, hasValidatedThisStable}
     this.lastCheckTime = 0;
     
-    console.log('🍔 Burger Detector initialized');
-    
     // Écouter les changements de grabbed plates
     this._setupPlateTracking();
   },
@@ -83,7 +81,6 @@ AFRAME.registerComponent('burger-detector', {
           plate.stableStartTime = time;
         } else if (time - plate.stableStartTime > this.data.stabilityTime && !plate.hasValidatedThisStable) {
           // Valider quand stable pendant 1.5s
-          console.log('📺 Recettes:', { recipe1: window.listeRecipe1, recipe2: window.listeRecipe2 });
           this.validateBurger(currentList);
           plate.hasValidatedThisStable = true;
         }
@@ -97,7 +94,6 @@ AFRAME.registerComponent('burger-detector', {
   validateBurger: function(detectedList) {
     // Bloquer la validation si le jeu n'est pas actif
     if (!window.gameActive) {
-      console.log('🚫 Validation bloquée: jeu non actif');
       return;
     }
     
@@ -110,7 +106,6 @@ AFRAME.registerComponent('burger-detector', {
     
     // Check recipe 1
     if (JSON.stringify(sortedDetected) === JSON.stringify(sortedRecipe1)) {
-      console.log('✅ MATCH RECIPE 1!');
       const tv = document.getElementById('order-slot-0');
       if (tv && window.ScoreManager) {
         window.ScoreManager.validateOrder(sortedDetected, tv);
@@ -120,7 +115,6 @@ AFRAME.registerComponent('burger-detector', {
     
     // Check recipe 2
     if (JSON.stringify(sortedDetected) === JSON.stringify(sortedRecipe2)) {
-      console.log('✅ MATCH RECIPE 2!');
       const tv = document.getElementById('order-slot-1');
       if (tv && window.ScoreManager) {
         window.ScoreManager.validateOrder(sortedDetected, tv);

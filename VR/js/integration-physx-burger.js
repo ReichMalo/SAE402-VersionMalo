@@ -22,16 +22,12 @@ AFRAME.registerComponent('burger-validator', {
     this.validationCooldown = 2000; // Éviter les validations trop fréquentes
 
     this.setupEventListeners();
-    console.log('🔗 Burger Validator initialized');
   },
 
   setupEventListeners: function() {
     // Attendre que la scène soit chargée
     this.el.sceneEl.addEventListener('loaded', () => {
       this.detector = document.querySelector(this.data.detectorSelector);
-      if (!this.detector) {
-        console.warn('⚠️ Burger PhysX Detector not found!');
-      }
     });
   },
 
@@ -41,24 +37,20 @@ AFRAME.registerComponent('burger-validator', {
   validateBurger: function() {
     const now = Date.now();
     if (now - this.lastValidationTime < this.validationCooldown) {
-      console.warn('⏱️ Validation en cooldown...');
       return;
     }
 
     if (!this.detector) {
-      console.error('❌ Detector non trouvé');
       return;
     }
 
     const detectorComponent = this.detector.components['burger-physx-detector'];
     if (!detectorComponent) {
-      console.error('❌ Composant burger-physx-detector non disponible');
       return;
     }
 
     // Vérifier que le burger est stable
     if (!detectorComponent.isStable) {
-      console.warn('⚠️ Le burger n\'est pas stable - en attente de stabilité');
       return;
     }
 
@@ -89,14 +81,6 @@ AFRAME.registerComponent('burger-validator', {
   logStatus: function() {
     const status = this.getBurgerStatus();
     if (status) {
-      console.group('📊 Burger Status');
-      console.log('Ingrédients détectés:', status.ingredients.length);
-      console.log('Stable:', status.isStable ? '✅' : '❌');
-      console.log('Peut être validé:', status.isValidatable ? '✅' : '❌');
-      console.table(status.ingredients);
-      console.groupEnd();
-    } else {
-      console.warn('Status non disponible');
     }
   }
 });
@@ -208,5 +192,4 @@ window.BurgerIntegration = {
   }
 };
 
-console.log('🔗 Burger PhysX Integration loaded');
-console.log('API disponible: window.BurgerIntegration');
+

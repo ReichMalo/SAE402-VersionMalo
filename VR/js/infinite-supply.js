@@ -4,8 +4,6 @@ AFRAME.registerComponent('infinite-supply', {
     },
 
     init: function() {
-        console.log('✅ infinite-supply init:', this.el.getAttribute('item-type'));
-
         this.originalPosition = this.el.getAttribute('position');
         this.originalRotation = this.el.getAttribute('rotation');
         this.originalScale = this.el.getAttribute('scale');
@@ -20,7 +18,6 @@ AFRAME.registerComponent('infinite-supply', {
         this.el.dataset.isOriginal = 'true';
 
         this.el.addEventListener('dropped', () => {
-            console.log('🎧 Received dropped event for', this.itemType);
             this.respawn();
         });
     },
@@ -34,7 +31,6 @@ AFRAME.registerComponent('infinite-supply', {
             if (this.originalPhysxBody) {
                 this.el.setAttribute('physx-body', this.originalPhysxBody);
             }
-            console.log('🔄 Original reset to starting position');
         }, this.data.delay);
     }
 });

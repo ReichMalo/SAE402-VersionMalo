@@ -8,36 +8,10 @@
     <script src="https://unpkg.com/aframe-particle-system-component@1.0.x/dist/aframe-particle-system-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/physx@v0.3.x/dist/physx.min.js"></script>
 
-    <!-- Three.js utilities for mesh export -->
-    <script src="https://cdn.jsdelivr.net/npm/three@r140/examples/js/exporters/GLTFExporter.js"></script>
-
     <link rel="stylesheet" href="public/styles.css" />
-    <style>
-      #log {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        color: #0f0;
-        font-size: 11px;
-        z-index: 100;
-        max-width: 450px;
-        max-height: 350px;
-        overflow-y: auto;
-        background: rgba(0, 0, 0, 0.9);
-        padding: 8px;
-        border: 1px solid #0f0;
-        font-family: monospace;
-        font-weight: bold;
-      }
-      #log .line {
-        margin: 1px 0;
-      }
-    </style>
-    <script src="js/debug-status.js"></script>
     <script src="js/main.js"></script>
   </head>
   <body>
-    <div id="log">INITIALIZING...</div>
     <a-scene
       xr-mode-ui="XRMode: xr"
       inspector=""
@@ -435,39 +409,24 @@
       class MeshDetector {
         constructor() {
           this.scene = document.querySelector("a-scene");
-          this.log("Detector created");
           this.init();
         }
 
         init() {
           this.scene.addEventListener("enter-vr", () => this.onEnterVR());
           this.scene.addEventListener("exit-vr", () => this.onExitVR());
-          this.log("Listeners attached");
         }
 
         async onEnterVR() {
-          this.log("VR ENTERED");
-          // Scanner disabled - just for testing environment detection if needed
-        }
-
-        onExitVR() {
-          this.log("Exit VR");
-          document.getElementById("meshes").innerHTML = "";
-        }
-
-        async onEnterVR() {
-          this.log("VR ENTERED");
           await new Promise((r) => setTimeout(r, 100));
 
           const renderer = this.scene.renderer;
           if (!renderer || !renderer.xr) {
-            this.log("✗ No renderer.xr");
             return;
           }
 
           const session = renderer.xr.getSession?.();
           if (!session) {
-            this.log("✗ No session");
             return;
           }
 
@@ -476,7 +435,6 @@
           try {
             viewerSpace = await session.requestReferenceSpace("viewer");
           } catch (e) {
-            this.log("✗ Viewer space: " + e.message);
             return;
           }
 
@@ -492,9 +450,7 @@
             hitTestSource = await session.requestHitTestSource({
               space: viewerSpace,
             });
-            this.log("✓ Scanning started");
           } catch (e) {
-            this.log("✗ Hit test: " + e.message);
             return;
           }
 
@@ -634,7 +590,6 @@
                   gridPoints.set(key, { x: gridX, y: gridY, z: gridZ });
 
                   if (detected.size % 20 === 0) {
-                    this.log(`✓ ${detected.size} points`);
                   }
 
                   this.addBox(gridX, gridY, gridZ);
@@ -772,23 +727,7 @@
         }
 
         onExitVR() {
-          this.log("Exit VR");
           document.getElementById("meshes").innerHTML = "";
-        }
-
-        log(m) {
-          console.log(m);
-          const div = document.getElementById("log");
-          const line = document.createElement("div");
-          line.className = "line";
-          line.textContent = m;
-          line.style.color = m.includes("✓")
-            ? "#0f0"
-            : m.includes("✗")
-              ? "#f00"
-              : "#0ff";
-          div.insertBefore(line, div.firstChild);
-          while (div.children.length > 20) div.removeChild(div.lastChild);
         }
       }
 
